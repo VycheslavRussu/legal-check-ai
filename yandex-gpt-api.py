@@ -60,23 +60,49 @@ class YandexGPT:
         return result
 
 
-# yandex_api = YandexGPT(ENV, API_KEY)
-# response = yandex_api.send_response(messages)
-
-# print(response)
-
-
-
 
 class ContextStorage:
-    # Должен содержать лист диктов со всем контекстом общения
-    # На вход должен получать dict с сообщением
-    # На выходе должен отдавать список со всеми сообщениями (контекст)
+    """
+    Должен содержать лист диктов со всем контекстом общения
+    На вход должен получать dict с сообщением
+    На выходе должен отдавать список со всеми сообщениями (контекст)
+    """
 
     def __init__(self):
+        self.__context_storage = []
+
+    def get_context(self):
+        return self.__context_storage
+
+    def add_context(self, message):
+        self.__context_storage.append(message)
 
 
-# class UseCases:
+
+
+
+class UseCase:
+
+
+    # Тестовые данные для тестирования ContextStorage
+    # storage = ContextStorage()
+    # dict1 = {
+    #             "role": "system",
+    #             "text": "Ты опытный юрист, который разберается в гражданском праве и сделках с недвижимостью."
+    #         }
+    #
+    # storage.add_context(dict1)
+    # storage.add_context(messages[0])
+    # storage.add_context(messages[1])
+    # print(storage.get_context()[2])
+
+    # yandex_api = YandexGPT(ENV, API_KEY)
+    # response = yandex_api.send_response(messages)
+
+    # print(response)
+
+
+
 
     # API Yandex
     # 0. Конфигурируем среду, передаем секреты
