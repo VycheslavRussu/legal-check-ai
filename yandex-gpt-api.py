@@ -192,7 +192,6 @@ reply = test_use_case.execute(legal_document_text)
 
 print(reply)
 
-
 # API Yandex
 # 0. Конфигурируем среду, передаем секреты
 # 1. Подключиться к серверу
