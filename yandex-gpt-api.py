@@ -190,6 +190,7 @@ legal_document_text = """
 # Отправляем текст договора legal_document_text в модель и получаем от нее ответ
 reply = test_use_case.execute(legal_document_text)
 
+
 print(reply)
 
 # API Yandex
