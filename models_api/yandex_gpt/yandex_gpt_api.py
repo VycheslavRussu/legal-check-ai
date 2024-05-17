@@ -4,7 +4,7 @@ import json
 secrets_file = open("../../secrets.json")
 secrets = json.load(secrets_file)
 
-API_KEY = secrets["API_KEY"]
+GPT_API_KEY = secrets["GPT_API_KEY"]
 FOLDER_ID = secrets["FOLDER_ID"]
 
 
@@ -17,7 +17,7 @@ class YandexGPT:
 
     def __init__(self):
         self.__FOLDER_ID = FOLDER_ID
-        self.__API_KEY = API_KEY
+        self.__API_KEY = GPT_API_KEY
 
     # Model Params
     stream = False
