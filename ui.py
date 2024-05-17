@@ -1,10 +1,9 @@
 import streamlit as st
 import base64
-# from models_api.yandex_gpt.yandex_gpt_api.py import UseCase
 from models_api.yandex_gpt.yandex_gpt_api import UseCase
+from models_api.yandex_ocr.yandex_ocr_api import pdf_base64_to_text, ocr_image
 from streamlit import session_state as session
 from docx import Document
-import json
 
 
 # Функция для чтения содержимого файла формата .txt в текст
@@ -38,70 +37,82 @@ def read_image(file):
 st.title("Проверка договора на наличие подозрительных пунктов")
 st.header("Загрузка документа")
 
-# Проверка существования словаря сообщений для данного user_id в текщей сессии
+# Проверка существования списка сообщений для данного user_id в текщей сессии
 if "messages" not in session:
-    # Если нет, создаем новую запись с пустым словарем сообщений
+    # Если нет, создаем новую запись с пустым списком сообщений
     session.messages = []
 
+# Проверка существования расшифровки текста документа
+if 'doc_text' not in session:
+    # Если нет, создаем новую запись со значением None
+    session.doc_text = None
+
+# Панель загрузки файла форматов "png", "jpeg", "jpg", "pdf", "docx"
 uploaded_file = st.file_uploader(label="Загрузите документ",
                                  type=["png", "jpeg", "jpg", "pdf", "docx"])
+
+# Если файл загружен
 if not uploaded_file:
     st.warning("Пожалуйста, загрузите документ!")
     st.stop()
 
 else:
-    if uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        session.doc_text = read_docx(uploaded_file)
+    try:
+        if uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            session.doc_text = read_docx(uploaded_file)
 
-    elif uploaded_file.type == "text/plain":
-        session.doc_text = read_txt(uploaded_file)
+        elif uploaded_file.type == "text/plain":
+            session.doc_text = read_txt(uploaded_file)
 
-    elif uploaded_file.type == "application/pdf":
-        session.doc_text = None
-        session.document = read_pdf(uploaded_file)
-    elif uploaded_file.type in ["image/png", "image/jpeg", "image/jpg"]:
+        elif uploaded_file.type == "application/pdf":
+            document = read_pdf(uploaded_file)
+            session.doc_text = pdf_base64_to_text(document)
 
-        session.doc_text = None
-        session.document = read_image(uploaded_file)
-        image_as_bytes = uploaded_file.read()
-        st.image(image_as_bytes, use_column_width=True)
+        elif uploaded_file.type in ["image/png", "image/jpeg", "image/jpg"]:
+            document = read_image(uploaded_file)
+            session.doc_text = ocr_image(document)
 
-    if session.doc_text is None:
-        # TODO: отправка документа на модель и получение текста
-        # text_doc = model.to_text()
-        session.doc_text = 'Как твои дела?'
+            image_as_bytes = uploaded_file.read()
+            st.image(image_as_bytes, use_column_width=True)
 
-    if len(session.messages) == 0:
-        session.messages.append({'role': 'user', 'content': 'Отправка файла...'})
-        session.model = UseCase()
-        response_doc = session.model.execute(session.doc_text)
-        # response_doc = 'Ответ модели на документ'
-        session.messages.append({'role': 'ai', 'content': response_doc})
+        else:
+            st.write('Некорректный формат документа!')
+            uploaded_file = None
 
-# После ответа от модели появлется возможность общения
-st.subheader("Обращение к модели")
-user_input = st.chat_input("Введите сообщение:", max_chars=200)
+        if len(session.messages) == 0:
+            session.messages.append({'role': 'user', 'content': 'Отправка файла...'})
+            session.model = UseCase()
+            response_doc = session.model.execute(session.doc_text)
+            session.messages.append({'role': 'ai', 'content': response_doc})
 
-for message in session.messages:
-    with st.chat_message(message['role']):
-        st.markdown(message['content'])
+    except Exception as e:
+        st.write('Ошибка формата документа!')
+        uploaded_file = None
 
-# После сообщения пользователя
-if user_input:
-    # Показывает сообщение пользователя
-    with st.chat_message('user'):
-        st.markdown(user_input)
+if session.doc_text:
+    # После ответа от модели появлется возможность общения
+    st.subheader("Обращение к модели")
+    user_input = st.chat_input("Введите сообщение:", max_chars=200)
 
-    # Добавляет сообщение в историю сообщений
-    session.messages.append({'role': 'user', 'content': user_input})
+    for message in session.messages:
+        with st.chat_message(message['role']):
+            st.markdown(message['content'])
 
-    # Ответ модели на запрос
-    response = session.model.execute(user_input)
-    # response = f'Ответ модели на {user_input}'
+    # После сообщения пользователя
+    if user_input:
+        # Показывает сообщение пользователя
+        with st.chat_message('user'):
+            st.markdown(user_input)
 
-    # Показывает ответ модели
-    with st.chat_message('ai'):
-        st.markdown(response)
+        # Добавляет сообщение в историю сообщений
+        session.messages.append({'role': 'user', 'content': user_input})
 
-    # Добавляет ответ модели в историю сообщений
-    session.messages.append({'role': 'ai', 'content': response})
+        # Ответ модели на запрос
+        response = session.model.execute(user_input)
+
+        # Показывает ответ модели
+        with st.chat_message('ai'):
+            st.markdown(response)
+
+        # Добавляет ответ модели в историю сообщений
+        session.messages.append({'role': 'ai', 'content': response})
