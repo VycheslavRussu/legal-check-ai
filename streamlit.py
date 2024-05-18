@@ -79,7 +79,7 @@ else:
             st.write('Некорректный формат документа!')
             uploaded_file = None
 
-        if len(session.messages) == 0:
+        if len(session.messages) == 0 and uploaded_file:
             session.messages.append({'role': 'user', 'content': 'Отправка файла...'})
             session.model = UseCase()
             response_doc = session.model.execute(session.doc_text)
