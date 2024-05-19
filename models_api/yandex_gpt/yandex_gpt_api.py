@@ -154,4 +154,4 @@ class UseCase:
         else:
             while self.context_storage.get_approximate_tokens_count() > 6000:
                 self.context_storage.delete_message_from_context()
-                return self.execute(message)
+            return self.execute(message)
