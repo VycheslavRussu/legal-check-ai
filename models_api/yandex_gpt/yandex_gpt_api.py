@@ -22,7 +22,7 @@ class YandexGPT:
     # Model Params
     stream = False
     temperature = 0.3
-    max_tokens = "100"
+    max_tokens = "500"
 
     def send_response(self, context_messages: list[dict]):
         prompt = {
@@ -56,6 +56,7 @@ class ContextStorage:
 
     def __init__(self):
         self.__context_storage = []
+        self.__tokens_count = 0
         pass
 
     def set_default_context(self, default_context: list):
@@ -66,6 +67,7 @@ class ContextStorage:
         """
         for message in default_context:
             self.__context_storage.append(message)
+            self.__tokens_count += len(message["text"]) // 5
         pass
 
     def get_context(self):
@@ -73,6 +75,15 @@ class ContextStorage:
 
     def add_context(self, message):
         self.__context_storage.append(message)
+        self.__tokens_count += len(message["text"]) // 5
+        pass
+
+    def get_approximate_tokens_count(self):
+        return self.__tokens_count
+
+    def delete_message_from_context(self):
+        self.__tokens_count -= len(self.__context_storage[3]["text"]) // 5
+        self.__context_storage.pop(3)
         pass
 
 
@@ -136,3 +147,11 @@ class UseCase:
 
         # Возращаем строку с ответом модели
         return reply_message["text"]
+
+    def operate(self, message: str):
+        if self.context_storage.get_approximate_tokens_count() < 6000:
+            return self.execute(message)
+        else:
+            while self.context_storage.get_approximate_tokens_count() > 6000:
+                self.context_storage.delete_message_from_context()
+                return self.execute(message)
