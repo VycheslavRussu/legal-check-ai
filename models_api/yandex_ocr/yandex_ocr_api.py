@@ -1,13 +1,14 @@
-# !pip install requests
-# !pip install pymupdf
-
 import requests
 import fitz  # PyMuPDF
 import base64
 import io
+import json
+
+secrets_file = open("../../secrets.json")
+secrets = json.load(secrets_file)
 
 IAM_TOKEN = secrets["IAM_TOKEN"]
-ENV = secrets["ENV"]
+FOLDER_ID = secrets["FOLDER_ID"]
 
 def pdf_base64_to_images(base64_pdf):
     """ Конвертирует base64 PDF в список изображений. """
@@ -22,14 +23,18 @@ def pdf_base64_to_images(base64_pdf):
         images.append(img_data)
     return images
 
-def ocr_image(image_data, iam_token, folder_id):
+def image_base64_to_bytes(base64_image):
+    """ Конвертирует base64 изображение в байты. """
+    return base64.b64decode(base64_image)
+
+def ocr_image(image_data):
     """ Распознает текст на изображении с помощью Yandex OCR. """
     ocr_url = "https://vision.api.cloud.yandex.net/vision/v1/batchAnalyze"
     headers = {
-        "Authorization": f"Bearer {iam_token}"
+        "Authorization": f"Bearer {IAM_TOKEN}"
     }
     data = {
-        "folderId": folder_id,
+        "folderId": FOLDER_ID,
         "analyze_specs": [{
             "content": base64.b64encode(image_data).decode('utf-8'),  # Конвертируем байты в base64 строку
             "features": [{
@@ -56,17 +61,24 @@ def extract_text_from_response(response):
         pages_text.append(text)
     return "\n".join(pages_text)
 
-def pdf_base64_to_text(base64_pdf, iam_token, folder_id):
-    """ Основная функция для получения текста из PDF в формате base64. """
-    images = pdf_base64_to_images(base64_pdf)
+def file_base64_to_text(base64_file, file_type):
+    """ Основная функция для получения текста из файла в формате base64. """
+    if file_type == 'pdf':
+        images = pdf_base64_to_images(base64_file)
+    elif file_type in ['png', 'jpg', 'jpeg']:
+        images = [image_base64_to_bytes(base64_file)]
+    else:
+        raise ValueError("Unsupported file type")
+
     all_text = []
     for img_data in images:
-        ocr_result = ocr_image(img_data, iam_token, folder_id)
+        ocr_result = ocr_image(img_data)
         text = extract_text_from_response(ocr_result)
         all_text.append(text)
     return "\n".join(all_text)
 
 # Пример использования
-
-# recognized_text = pdf_base64_to_text(base64_pdf, IAM_TOKEN, ENV)
+# base64_file = "..."  # base64 строка файла
+# file_type = "pdf"  # тип файла: pdf, png, jpg, jpeg
+# recognized_text = file_base64_to_text(base64_file, file_type)
 # print(recognized_text)
