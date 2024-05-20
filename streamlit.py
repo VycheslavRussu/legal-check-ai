@@ -1,7 +1,7 @@
 import streamlit as st
 import base64
 from models_api.yandex_gpt.yandex_gpt_api import UseCase
-from models_api.yandex_ocr.yandex_ocr_api import pdf_base64_to_text, ocr_image
+from models_api.yandex_ocr.yandex_ocr_api import file_base64_to_text
 from streamlit import session_state as session
 from docx import Document
 
@@ -66,11 +66,11 @@ else:
 
         elif uploaded_file.type == "application/pdf":
             document = read_pdf(uploaded_file)
-            session.doc_text = pdf_base64_to_text(document)
+            session.doc_text = file_base64_to_text(document, 'pdf')
 
         elif uploaded_file.type in ["image/png", "image/jpeg", "image/jpg"]:
             document = read_image(uploaded_file)
-            session.doc_text = ocr_image(document)
+            session.doc_text = file_base64_to_text(document, uploaded_file.type.split('/')[-1])
 
             image_as_bytes = uploaded_file.read()
             st.image(image_as_bytes, use_column_width=True)
