@@ -30,15 +30,15 @@ class YandexGPT:
             "completionOptions": {
                 "stream": self.stream,
                 "temperature": self.temperature,
-                "maxTokens": self.max_tokens
+                "maxTokens": self.max_tokens,
             },
-            "messages": context_messages
+            "messages": context_messages,
         }
 
         url = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
         headers = {
             "Content-Type": "application/json",
-            "Authorization": "Api-Key " + self.__API_KEY
+            "Authorization": "Api-Key " + self.__API_KEY,
         }
 
         response = requests.post(url, headers=headers, json=prompt)
@@ -88,10 +88,7 @@ class ContextStorage:
 
 
 def normalize(user_message: str):
-    normalized_message = {
-        "role": "user",
-        "text": user_message
-    }
+    normalized_message = {"role": "user", "text": user_message}
     return normalized_message
 
 
@@ -106,7 +103,9 @@ class UseCase:
     def __init__(self):
         self.context_storage = ContextStorage()
         self.yandex_gpt = YandexGPT()
-        self.context_storage.set_default_context(self.setup_messages)  # Задаем дефолтный контекст для модели
+        self.context_storage.set_default_context(
+            self.setup_messages
+        )  # Задаем дефолтный контекст для модели
         pass
 
     # Начальный контекст, передаем сюда промт и первое сообщение пользователя
@@ -114,15 +113,16 @@ class UseCase:
         {
             "role": "system",
             "text": """Ты — опытный юрист, который разбирается в гражданском праве и сделках с недвижимостью.
-                           Твоя роль — внимательно и полностью прочитать текст договора, который отправит пользователь, 
-                           а также найти и показать пользователю все ошибки и подозрительные пункты, которые будут в этом договоре."""
+                       Твоя роль — внимательно и полностью прочитать текст договора, который отправит пользователь, 
+                       а также найти и показать пользователю все ошибки и подозрительные пункты, которые будут 
+                       в этом договоре.""",
         },
         {
             "role": "user",
-            "text": """Привет, дорогая модель! Следующим сообщением я отправлю тебе текст гражданского договора купли продажи. 
-                           Пожалуйста, прочитай его внимательно и укажи на подозрительные пункты в нем, которые могут 
-                           потенциально наведить мне."""
-        }
+            "text": """Привет, дорогая модель! Следующим сообщением я отправлю тебе текст гражданского договора купли 
+                       продажи. Пожалуйста, прочитай его внимательно и укажи на подозрительные пункты в нем, которые 
+                       могут потенциально наведить мне.""",
+        },
     ]
 
     def execute(self, message: str):
@@ -139,7 +139,9 @@ class UseCase:
 
         # Отправляем запрос на модель. В запросе передаем контекст, который содержится в context_storage
         # В ответ получаем словарь с ответом модели, из которого достаем message
-        reply = json.loads(self.yandex_gpt.send_response(self.context_storage.get_context()))
+        reply = json.loads(
+            self.yandex_gpt.send_response(self.context_storage.get_context())
+        )
         reply_message = reply["result"]["alternatives"][0]["message"]
 
         # Сохраняем ответ модели в context_storage
