@@ -82,7 +82,7 @@ else:
         if len(session.messages) == 0 and uploaded_file:
             session.messages.append({'role': 'user', 'content': 'Отправка файла...'})
             session.model = UseCase()
-            response_doc = session.model.execute(session.doc_text)
+            response_doc = session.model.operate(session.doc_text)
             session.messages.append({'role': 'ai', 'content': response_doc})
 
     except Exception as e:
@@ -108,7 +108,7 @@ if session.doc_text:
         session.messages.append({'role': 'user', 'content': user_input})
 
         # Ответ модели на запрос
-        response = session.model.execute(user_input)
+        response = session.model.operate(user_input)
 
         # Показывает ответ модели
         with st.chat_message('ai'):
