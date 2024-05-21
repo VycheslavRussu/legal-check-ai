@@ -12,6 +12,7 @@ secrets = json.load(secrets_file)
 
 IAM_TOKEN = secrets["IAM_TOKEN"]
 FOLDER_ID = secrets["FOLDER_ID"]
+API_OCR = secrets["API_OCR"]
 
 def pdf_base64_to_images(base64_pdf):
     """ Конвертирует base64 PDF в список изображений. """
@@ -34,7 +35,7 @@ def ocr_image(image_data):
     """ Распознает текст на изображении с помощью Yandex OCR. """
     ocr_url = "https://vision.api.cloud.yandex.net/vision/v1/batchAnalyze"
     headers = {
-        "Authorization": f"Bearer {IAM_TOKEN}"
+        "Authorization": f"Api-Key {API_OCR}"
     }
     data = {
         "folderId": FOLDER_ID,
