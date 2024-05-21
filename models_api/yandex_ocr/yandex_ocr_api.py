@@ -65,7 +65,7 @@ def extract_text_from_response(response):
         for page in result['results'][0]['textDetection']['pages']:
             for block in page['blocks']:
                 for line in block['lines']:
-                    text += " ".join([word['text'] 
+                    text += " ".join([word['text']
                                       for word in line['words']])
                     + "\n"
         pages_text.append(text)

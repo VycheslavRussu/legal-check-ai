@@ -58,7 +58,8 @@ if not uploaded_file:
 
 else:
     try:
-        if uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        if uploaded_file.type == "application/vnd.openxmlformats-" \
+                                 "officedocument.wordprocessingml.document":
             session.doc_text = read_docx(uploaded_file)
 
         elif uploaded_file.type == "text/plain":
@@ -70,7 +71,9 @@ else:
 
         elif uploaded_file.type in ["image/png", "image/jpeg", "image/jpg"]:
             document = read_image(uploaded_file)
-            session.doc_text = file_base64_to_text(document, uploaded_file.type.split('/')[-1])
+            session.doc_text = file_base64_to_text(
+                document, uploaded_file.type.split('/')[-1]
+                )
 
             image_as_bytes = uploaded_file.read()
             st.image(image_as_bytes, use_column_width=True)
@@ -80,12 +83,14 @@ else:
             uploaded_file = None
 
         if len(session.messages) == 0 and uploaded_file:
-            session.messages.append({'role': 'user', 'content': 'Отправка файла...'})
+            session.messages.append(
+                {'role': 'user', 'content': 'Отправка файла...'}
+                )
             session.model = UseCase()
             response_doc = session.model.operate(session.doc_text)
             session.messages.append({'role': 'ai', 'content': response_doc})
 
-    except Exception as e:
+    except Exception:
         st.write('Ошибка формата документа!')
         uploaded_file = None
 
