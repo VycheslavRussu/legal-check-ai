@@ -5,11 +5,17 @@ import os
 
 current_dir = os.path.dirname(__file__)
 absolute_path = os.path.join(current_dir, '../../secrets.json')
-secrets_file = open(absolute_path)
-secrets = json.load(secrets_file)
 
-GPT_API_KEY = secrets["GPT_API_KEY"]
-FOLDER_ID = secrets["FOLDER_ID"]
+try:
+    with open(absolute_path, 'r') as secrets_file:
+        secrets = json.load(secrets_file)
+
+    GPT_API_KEY = secrets.get("GPT_API_KEY")
+    FOLDER_ID = secrets.get("FOLDER_ID")
+
+except Exception as e:
+    GPT_API_KEY = os.environ.get("GPT_API_KEY")
+    FOLDER_ID = os.environ.get("FOLDER_ID")
 
 
 class YandexGPT:
