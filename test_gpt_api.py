@@ -9,7 +9,9 @@ def mock_response():
     return {
         "result": {
             "alternatives": [
-                {"message": {"role": "system", "text": "This is a test response"}}
+                {"message":
+                 {"role": "system", "text":
+                  "This is a test response"}}
             ]
         }
     }
@@ -47,7 +49,9 @@ def test_set_default_context():
     ]
     storage.set_default_context(default_context)
     assert storage.get_context() == default_context
-    assert storage.get_approximate_tokens_count() == len("System message") // 5 + len("User message") // 5
+    assert storage.get_approximate_tokens_count() == (
+        len("System message") // 5 + len("User message") // 5
+        )
 
 
 def test_delete_message_from_context():
@@ -61,4 +65,7 @@ def test_delete_message_from_context():
     storage.set_default_context(default_context)
     storage.delete_message_from_context()
     assert len(storage.get_context()) == 3
-    assert storage.get_approximate_tokens_count() == len("System message") // 5 + len("User message") // 5 + len("Another message") // 5
+    assert storage.get_approximate_tokens_count() == (
+        len("System message") // 5 + len("User message") // 5 +
+        len("Another message") // 5
+        )
