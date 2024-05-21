@@ -15,12 +15,12 @@ try:
         secrets = json.load(secrets_file)
 
     FOLDER_ID = secrets.get("FOLDER_ID")
-    API_OCR = secrets.get("FOLDER_ID")
+    API_OCR = secrets.get("API_OCR")
 
 except Exception as e:
     print(e)
     FOLDER_ID = os.environ.get("FOLDER_ID")
-    API_OCR = os.environ.get("FOLDER_ID")
+    API_OCR = os.environ.get("API_OCR")
 
 
 def pdf_base64_to_images(base64_pdf):
