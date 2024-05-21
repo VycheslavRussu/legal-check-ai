@@ -1,17 +1,29 @@
 import requests
 import json
+import os
 
-secrets_file = open("../../secrets.json")
-secrets = json.load(secrets_file)
 
-GPT_API_KEY = secrets["GPT_API_KEY"]
-FOLDER_ID = secrets["FOLDER_ID"]
+current_dir = os.path.dirname(__file__)
+absolute_path = os.path.join(current_dir, '../../secrets.json')
+
+try:
+    with open(absolute_path, 'r') as secrets_file:
+        secrets = json.load(secrets_file)
+
+    GPT_API_KEY = secrets.get("GPT_API_KEY")
+    FOLDER_ID = secrets.get("FOLDER_ID")
+
+except Exception as e:
+    print(e)
+    GPT_API_KEY = os.environ.get("GPT_API_KEY")
+    FOLDER_ID = os.environ.get("FOLDER_ID")
 
 
 class YandexGPT:
     """
     Класс YandexGPT конфигурирует параметры модели,
-    Метод send_response, отправляет запрос к модели. На вход передаем контекст из сообщений, на выходе получаем dict
+    Метод send_response, отправляет запрос к модели.
+    На вход передаем контекст из сообщений, на выходе получаем dict
     с ответом модели
     """
 
@@ -61,9 +73,11 @@ class ContextStorage:
 
     def set_default_context(self, default_context: list):
         """
-        Принимает на вход список из сообщений с базовым контекстом, который мы задаем.
+        Принимает на вход список из сообщений с базовым контекстом,
+        который мы задаем.
         Добавляет каждое сообщение в context_storage
-        :param default_context:  список из словарей, в котором храним первичные настройки модели
+        :param default_context:  список из словарей,
+        в котором храним первичные настройки модели
         """
         for message in default_context:
             self.__context_storage.append(message)
@@ -133,10 +147,11 @@ class UseCase:
         Попутно добавляет сообщения в контекст
         """
 
-        # Нормализуем сообщение от пользователя (превращаем строку в словарь и добавляем параметр с ролью)
+        # Нормализуем сообщение от пользователя
+        # (превращаем строку в словарь и добавляем параметр с ролью)
         # Сохраняем сообщение от пользователя в context storage
         self.context_storage.add_context(normalize(message))
-
+        
         # Отправляем запрос на модель. В запросе передаем контекст, который содержится в context_storage
         # В ответ получаем словарь с ответом модели, из которого достаем message
         reply = json.loads(
