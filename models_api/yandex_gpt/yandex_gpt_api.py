@@ -14,6 +14,7 @@ try:
     FOLDER_ID = secrets.get("FOLDER_ID")
 
 except Exception as e:
+    print(e)
     GPT_API_KEY = os.environ.get("GPT_API_KEY")
     FOLDER_ID = os.environ.get("FOLDER_ID")
 

@@ -19,6 +19,7 @@ try:
     API_OCR = secrets.get("FOLDER_ID")
 
 except Exception as e:
+    print(e)
     IAM_TOKEN = os.environ.get("IAM_TOKEN")
     FOLDER_ID = os.environ.get("FOLDER_ID")
     API_OCR = os.environ.get("FOLDER_ID")
@@ -75,8 +76,7 @@ def extract_text_from_response(response):
             for block in page['blocks']:
                 for line in block['lines']:
                     text += " ".join([word['text']
-                                      for word in line['words']])
-                    + "\n"
+                                      for word in line['words']]) + "\n"
         pages_text.append(text)
     return "\n".join(pages_text)
 
