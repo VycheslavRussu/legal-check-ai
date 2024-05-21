@@ -3,8 +3,11 @@ import fitz  # PyMuPDF
 import base64
 import io
 import json
+import os
 
-secrets_file = open("../../secrets.json")
+current_dir = os.path.dirname(__file__)
+absolute_path = os.path.join(current_dir, '../../secrets.json')
+secrets_file = open(absolute_path)
 secrets = json.load(secrets_file)
 
 IAM_TOKEN = secrets["IAM_TOKEN"]

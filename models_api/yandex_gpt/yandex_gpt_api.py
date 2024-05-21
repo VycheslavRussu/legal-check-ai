@@ -1,7 +1,11 @@
 import requests
 import json
+import os
 
-secrets_file = open("../../secrets.json")
+
+current_dir = os.path.dirname(__file__)
+absolute_path = os.path.join(current_dir, '../../secrets.json')
+secrets_file = open(absolute_path)
 secrets = json.load(secrets_file)
 
 GPT_API_KEY = secrets["GPT_API_KEY"]
