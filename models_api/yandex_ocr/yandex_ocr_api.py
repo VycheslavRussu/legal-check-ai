@@ -14,13 +14,11 @@ try:
     with open(absolute_path, 'r') as secrets_file:
         secrets = json.load(secrets_file)
 
-    IAM_TOKEN = secrets.get("IAM_TOKEN")
     FOLDER_ID = secrets.get("FOLDER_ID")
     API_OCR = secrets.get("FOLDER_ID")
 
 except Exception as e:
     print(e)
-    IAM_TOKEN = os.environ.get("IAM_TOKEN")
     FOLDER_ID = os.environ.get("FOLDER_ID")
     API_OCR = os.environ.get("FOLDER_ID")
 
